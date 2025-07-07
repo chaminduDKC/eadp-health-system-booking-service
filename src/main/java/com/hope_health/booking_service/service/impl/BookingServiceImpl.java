@@ -80,8 +80,13 @@ public class BookingServiceImpl implements BookingService {
         if (!bookingRepo.existsById(bookingId)) {
             throw new RuntimeException("Booking not found with id: " + bookingId);
         }
-        bookingRepo.deleteById(bookingId);
-        return true;
+        try{
+            bookingRepo.deleteById(bookingId);
+            return true;
+        } catch (Exception e) {
+           return false;
+        }
+
     }
 
     @Override
