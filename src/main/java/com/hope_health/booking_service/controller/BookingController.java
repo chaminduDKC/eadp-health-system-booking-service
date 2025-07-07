@@ -85,6 +85,55 @@ public class BookingController {
         );
     }
 
+    @DeleteMapping("delete-booking-by-doctor/{doctorId}")
+    public ResponseEntity<StandardResponse> deleteBookingByDoctorId(@PathVariable String doctorId) {
+        System.out.println("Deleting bookings for doctor id: " + doctorId);
+        Set<BookingEntity> bookings = bookingRepo.findAllByDoctorId(doctorId);
+        if (bookings.isEmpty()) {
+            return new ResponseEntity<>(
+                    StandardResponse.builder()
+                            .code(404)
+                            .message("No bookings found for this doctor")
+                            .data(null)
+                            .build(),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+        bookings.forEach(booking -> bookingRepo.deleteById(booking.getBookingId()));
+        return new ResponseEntity<>(
+                StandardResponse.builder()
+                        .code(200)
+                        .message("Bookings deleted successfully for doctor id: " + doctorId)
+                        .data(null)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+
+    @DeleteMapping("delete-booking-by-patient/{patientId}")
+    public ResponseEntity<StandardResponse> deleteBookingByPatientId(@PathVariable String patientId) {
+        List<BookingEntity> bookings = bookingRepo.findAllByPatientId(patientId);
+        System.out.println("Found patients "+ bookings.toArray().length);
+        if (bookings.isEmpty()) {
+            return new ResponseEntity<>(
+                    StandardResponse.builder()
+                            .code(404)
+                            .message("No bookings found for this patient")
+                            .data(null)
+                            .build(),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+        bookings.forEach(booking -> bookingRepo.deleteById(booking.getBookingId()));
+        return new ResponseEntity<>(
+                StandardResponse.builder()
+                        .code(200)
+                        .message("Bookings deleted successfully for patient id: " + patientId)
+                        .data(null)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
     @PutMapping("update-booking-status/{bookingId}")
     public ResponseEntity<StandardResponse> updateBookingStatus(@PathVariable String bookingId, @RequestParam String status) {
         return new ResponseEntity<>(

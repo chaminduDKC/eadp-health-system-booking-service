@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface BookingRepo extends JpaRepository<BookingEntity, String> {
@@ -26,4 +27,6 @@ public interface BookingRepo extends JpaRepository<BookingEntity, String> {
     boolean existsByDoctorIdAndDateAndTime(String doctorId, LocalDate date, LocalTime time);
 
     List<BookingEntity> findByDoctorIdAndDate(String doctorId, LocalDate date);
+
+    Set<BookingEntity> findAllByDoctorId(String doctorId);
 }
