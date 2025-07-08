@@ -134,8 +134,11 @@ public class BookingController {
                 HttpStatus.OK
         );
     }
+
     @PutMapping("update-booking-status/{bookingId}")
+    @PreAuthorize("hasRole('admin') or hasRole('doctor')")
     public ResponseEntity<StandardResponse> updateBookingStatus(@PathVariable String bookingId, @RequestParam String status) {
+        System.out.println(status);
         return new ResponseEntity<>(
                 StandardResponse.builder()
                         .code(200)

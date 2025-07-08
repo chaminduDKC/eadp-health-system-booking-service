@@ -96,7 +96,10 @@ public class BookingServiceImpl implements BookingService {
         if (bookingEntity.isEmpty()) {
             throw new RuntimeException("Booking not found with id: " + bookingId);
         }
+        System.out.println(status);
         bookingEntity.get().setStatus(status);
+        bookingRepo.save(bookingEntity.get());
+        System.out.println(bookingEntity.get().getStatus());
         return toResponse(bookingEntity.get());
     }
 
