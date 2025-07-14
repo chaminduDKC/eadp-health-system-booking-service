@@ -1,6 +1,6 @@
 package com.hope_health.booking_service.util;
 
-import com.hope_health.booking_service.BookingResponse;
+import com.hope_health.booking_service.response.BookingResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -73,6 +73,34 @@ public class BookingController {
         );
     }
 
+    @GetMapping("/count-all")
+    public ResponseEntity<StandardResponse> countAllBookings() {
+        long count = bookingRepo.count();
+        return new ResponseEntity<>(
+                StandardResponse.builder()
+                        .code(200)
+                        .message("Total bookings count retrieved")
+                        .data(count)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+
+
+    @GetMapping("/count-today")
+    public ResponseEntity<StandardResponse> countAllBookingsByDate(@RequestParam LocalDate date) {
+        System.out.printf("Counting bookings for date: %s%n", date);
+        return new ResponseEntity<>(
+                StandardResponse.builder()
+                        .code(200)
+                        .message("Total bookings count retrieved")
+                        .data(bookingService.countTodayBookings(date))
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+
+
     @DeleteMapping("delete-by-booking-id/{bookingId}")
     public ResponseEntity<StandardResponse> deleteBookingById(@PathVariable String bookingId) {
         return new ResponseEntity<>(

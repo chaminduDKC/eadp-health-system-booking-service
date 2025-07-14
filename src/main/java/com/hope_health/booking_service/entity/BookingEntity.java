@@ -37,5 +37,7 @@ public class BookingEntity {
     private LocalDate date;
     private LocalTime time;
 
+    private String paymentStatus;
+
 
 }

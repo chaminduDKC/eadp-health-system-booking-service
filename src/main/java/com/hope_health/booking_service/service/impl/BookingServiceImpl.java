@@ -1,6 +1,6 @@
 package com.hope_health.booking_service.service.impl;
 
-import com.hope_health.booking_service.BookingResponse;
+import com.hope_health.booking_service.response.BookingResponse;
 import com.hope_health.booking_service.entity.BookingEntity;
 import com.hope_health.booking_service.request.BookingRequest;
 import com.hope_health.booking_service.service.BookingService;
@@ -121,9 +121,15 @@ public class BookingServiceImpl implements BookingService {
 
     }
 
+    @Override
+    public long countTodayBookings(LocalDate date) {
+        return bookingRepo.countByDate(date);
+    }
+
     private BookingResponse toResponse(BookingEntity entity) {
         return BookingResponse.builder()
                 .bookingId(entity.getBookingId())
+                .paymentStatus(entity.getPaymentStatus())
                 .patientName(entity.getPatientName())
                 .doctorName(entity.getDoctorName())
                 .patientId(entity.getPatientId())
@@ -138,6 +144,7 @@ public class BookingServiceImpl implements BookingService {
     private BookingEntity toEntity(BookingRequest request) {
         return BookingEntity.builder()
                 .bookingId(UUID.randomUUID().toString())
+                .paymentStatus(request.getPaymentStatus())
                 .patientId(request.getPatientId())
                 .patientName(request.getPatientName())
                 .doctorId(request.getDoctorId())

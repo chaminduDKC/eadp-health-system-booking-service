@@ -12,14 +12,10 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BookingRequest {
-    private String patientId;
-    private String patientName;
+public class DoctorAvailabilityRequest {
+
     private String doctorId;
-    private String doctorName;
     private LocalDate date;
-    private LocalTime time;
-    private String reason;
-    private String status; // e.g., "confirmed", "pending", "cancelled"
-    private String paymentStatus;
+    private LocalTime startTime;
+    private LocalTime endTime;
 }

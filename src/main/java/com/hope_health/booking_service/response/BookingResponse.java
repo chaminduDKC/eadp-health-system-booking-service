@@ -1,4 +1,4 @@
-package com.hope_health.booking_service;
+package com.hope_health.booking_service.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,4 +19,5 @@ public class BookingResponse {
     private String time; // Use String for simplicity, can be LocalTime if needed
     private String reason;
     private String status; // e.g., "confirmed", "pending", "cancelled"
+    private String paymentStatus;
 }

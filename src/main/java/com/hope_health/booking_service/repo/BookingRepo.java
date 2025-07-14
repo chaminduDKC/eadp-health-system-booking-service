@@ -29,4 +29,6 @@ public interface BookingRepo extends JpaRepository<BookingEntity, String> {
     List<BookingEntity> findByDoctorIdAndDate(String doctorId, LocalDate date);
 
     Set<BookingEntity> findAllByDoctorId(String doctorId);
+
+    long countByDate(LocalDate date);
 }
