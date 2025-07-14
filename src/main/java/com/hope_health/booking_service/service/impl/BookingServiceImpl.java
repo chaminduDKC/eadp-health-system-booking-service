@@ -66,9 +66,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingsResponsePaginated getAllBookings(String searchText, int page, int size) {
+        System.out.println("request came with search " + searchText + "page " + page + "size " + size);
         return BookingsResponsePaginated.builder()
-                .bookingCount(bookingRepo.count())
-                .bookingList(bookingRepo.findAll(PageRequest.of(page, size)).stream()
+                .bookingCount(bookingRepo.countAll(searchText))
+                .bookingList(bookingRepo.searchAll(searchText,PageRequest.of(page, size)).stream()
 //                        .filter(booking -> booking.getPatientId().contains(searchText) || booking.getDoctorId().contains(searchText))
                         .map(this::toResponse)
                         .toList())

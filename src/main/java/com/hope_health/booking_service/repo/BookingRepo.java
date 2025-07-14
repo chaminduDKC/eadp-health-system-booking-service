@@ -1,6 +1,9 @@
 package com.hope_health.booking_service.repo;
 
 import com.hope_health.booking_service.entity.BookingEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -31,4 +34,10 @@ public interface BookingRepo extends JpaRepository<BookingEntity, String> {
     Set<BookingEntity> findAllByDoctorId(String doctorId);
 
     long countByDate(LocalDate date);
+
+    @Query(value = "SELECT * FROM bookings WHERE doctor_name LIKE %?1% OR patient_name LIKE %?1%", nativeQuery = true)
+    Page<BookingEntity> searchAll(String search, Pageable pageable);
+
+    @Query(value = "SELECT COUNT(booking_id) FROM bookings WHERE doctor_name LIKE %?1% OR patient_name LIKE %?1%", nativeQuery = true)
+    long countAll(String search);
 }

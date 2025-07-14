@@ -63,6 +63,7 @@ public class BookingController {
     @GetMapping("/find-all-bookings")
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<StandardResponse> findAllBookings(@RequestParam String searchText, @RequestParam int page, @RequestParam int size){
+        System.out.println("HIHIHI");
         return new ResponseEntity<>(
                 StandardResponse.builder()
                         .code(200)

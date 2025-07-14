@@ -39,11 +39,24 @@ public class AvailabilityController {
     public ResponseEntity<StandardResponse> getAvailability(@RequestParam LocalDate date, @PathVariable String doctorId){
         return new ResponseEntity<>(
                 StandardResponse.builder()
-                        .code(201)
+                        .code(200)
                         .message("Available times retrieved succeeded")
                         .data(availabilityService.getAvailabilities(date, doctorId))
                         .build(),
-                HttpStatus.CREATED
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/find-selected-dates-by-doctor-id/{doctorId}")
+    public ResponseEntity<StandardResponse> getSelectedDates(@PathVariable String doctorId){
+        System.out.println("selected dates retrieved");
+        return new ResponseEntity<>(
+                StandardResponse.builder()
+                        .code(200)
+                        .message("selected dates retrieved succeeded")
+                        .data(availabilityService.getSelectedDates(doctorId))
+                        .build(),
+                HttpStatus.OK
         );
     }
 }

@@ -12,4 +12,6 @@ import java.util.List;
 public interface AvailabilityRepo extends JpaRepository<DoctorAvailability, String> {
 
     List<DoctorAvailability> findByDoctorIdAndDate(String doctorId, LocalDate date);
+
+    List<DoctorAvailability> findByDoctorId(String doctorId);
 }

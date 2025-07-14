@@ -13,4 +13,6 @@ public interface AvailabilityService {
     DoctorAvailabilityResponse saveAvailability(DoctorAvailabilityRequest request);
 
     List<LocalTime> getAvailabilities(LocalDate date, String doctorId);
+
+    List<LocalDate> getSelectedDates(String doctorId);
 }

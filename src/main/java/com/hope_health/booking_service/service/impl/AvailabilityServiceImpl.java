@@ -59,6 +59,12 @@ public class AvailabilityServiceImpl implements AvailabilityService {
                .collect(Collectors.toList());
     }
 
+    @Override
+    public List<LocalDate> getSelectedDates(String doctorId) {
+        List<DoctorAvailability> availabilities = availabilityRepo.findByDoctorId(doctorId);
+        return availabilities.stream().map(DoctorAvailability::getDate).toList();
+    }
+
 
     private DoctorAvailability toEntity(DoctorAvailabilityRequest request){
         return DoctorAvailability.builder()
