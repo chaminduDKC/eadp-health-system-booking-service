@@ -1,16 +1,21 @@
 package com.hope_health.booking_service.service.impl;
 
+import com.hope_health.booking_service.config.WebClientConfig;
+import com.hope_health.booking_service.request.RecentActivityRequest;
 import com.hope_health.booking_service.response.BookingResponse;
 import com.hope_health.booking_service.entity.BookingEntity;
 import com.hope_health.booking_service.request.BookingRequest;
 import com.hope_health.booking_service.service.BookingService;
 import com.hope_health.booking_service.repo.BookingRepo;
 import com.hope_health.booking_service.util.BookingsResponsePaginated;
+import com.hope_health.booking_service.util.StandardResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +28,7 @@ import java.util.stream.Collectors;
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepo bookingRepo;
+    private final WebClientConfig webClientConfig;
 
     @Override
     public BookingResponse createBooking(BookingRequest request) {
@@ -34,8 +40,31 @@ public class BookingServiceImpl implements BookingService {
         BookingEntity bookingEntity = toEntity(request);
 
         // save booking entity to the db
-        bookingRepo.save(bookingEntity);
-        return toResponse(bookingEntity);
+
+        try {
+
+            bookingRepo.save(bookingEntity);
+
+            RecentActivityRequest activityRequest = RecentActivityRequest.builder()
+                    .action("Appointment created by admin")
+                    .dateTime(LocalDateTime.now())
+                    .description("Doctor name : " + request.getDoctorName() + ", Patient name : "+ request.getPatientName())
+                    .build();
+
+            webClientConfig.webClient().post().uri("http://localhost:9094/api/recent-activities/create-activity")
+                    .bodyValue(activityRequest)
+                    .retrieve()
+                    .bodyToMono(StandardResponse.class)
+                    .block();
+            return toResponse(bookingEntity);
+
+        } catch (WebClientException e){
+            return toResponse(bookingEntity);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     @Override
@@ -82,12 +111,31 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException("Booking not found with id: " + bookingId);
         }
         try{
+            BookingEntity entity = bookingRepo.findById(bookingId).orElseThrow(()-> new RuntimeException("No user"));
+            String docName = entity.getDoctorName();
+            String patName = entity.getPatientName();
+            LocalDate date = entity.getDate();
+            LocalTime time = entity.getTime();
             bookingRepo.deleteById(bookingId);
+
+            RecentActivityRequest activityRequest = RecentActivityRequest.builder()
+                    .action("Appointment deleted by admin")
+                    .dateTime(LocalDateTime.now())
+                    .description("Doctor name : " + docName + ", Patient name : "+ patName + ", Date : "+date + ", Time : "+time)
+                    .build();
+
+            webClientConfig.webClient().post().uri("http://localhost:9094/api/recent-activities/create-activity")
+                    .bodyValue(activityRequest)
+                    .retrieve()
+                    .bodyToMono(StandardResponse.class)
+                    .block();
+
+            return true;
+        } catch (WebClientException e) {
             return true;
         } catch (Exception e) {
-           return false;
+            throw new RuntimeException(e);
         }
-
     }
 
     @Override
@@ -97,11 +145,73 @@ public class BookingServiceImpl implements BookingService {
         if (bookingEntity.isEmpty()) {
             throw new RuntimeException("Booking not found with id: " + bookingId);
         }
-        System.out.println(status);
-        bookingEntity.get().setStatus(status);
-        bookingRepo.save(bookingEntity.get());
-        System.out.println(bookingEntity.get().getStatus());
-        return toResponse(bookingEntity.get());
+        try {
+
+            String oldStatus = bookingEntity.get().getStatus();
+            bookingEntity.get().setStatus(status);
+            bookingRepo.save(bookingEntity.get());
+
+            String docName = bookingEntity.get().getDoctorName();
+            String patName = bookingEntity.get().getPatientName();
+
+            RecentActivityRequest activityRequest = RecentActivityRequest.builder()
+                    .action("Appointment status updated by admin")
+                    .dateTime(LocalDateTime.now())
+                    .description("Doctor name : " + docName + " Patient name : "+ patName + " New status : "+status + " Old status : "+oldStatus)
+                    .build();
+
+            webClientConfig.webClient().post().uri("http://localhost:9094/api/recent-activities/create-activity")
+                    .bodyValue(activityRequest)
+                    .retrieve()
+                    .bodyToMono(StandardResponse.class)
+                    .block();
+
+
+            System.out.println(bookingEntity.get().getStatus());
+            return toResponse(bookingEntity.get());
+        } catch (WebClientException e){
+            return toResponse(bookingEntity.get());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public BookingResponse updateBookingPaymentStatus(String bookingId, String status) {
+        Optional<BookingEntity> bookingEntity = bookingRepo.findById(bookingId);
+
+        if (bookingEntity.isEmpty()) {
+            throw new RuntimeException("Booking not found with id: " + bookingId);
+        }
+        try {
+
+            String oldStatus = bookingEntity.get().getPaymentStatus();
+            bookingEntity.get().setPaymentStatus(status);
+            bookingRepo.save(bookingEntity.get());
+
+            String docName = bookingEntity.get().getDoctorName();
+            String patName = bookingEntity.get().getPatientName();
+
+            RecentActivityRequest activityRequest = RecentActivityRequest.builder()
+                    .action("Appointment payment status updated by admin")
+                    .dateTime(LocalDateTime.now())
+                    .description("Doctor name : " + docName + " Patient name : "+ patName + " New status : "+status + " Old status : "+oldStatus)
+                    .build();
+
+            webClientConfig.webClient().post().uri("http://localhost:9094/api/recent-activities/create-activity")
+                    .bodyValue(activityRequest)
+                    .retrieve()
+                    .bodyToMono(StandardResponse.class)
+                    .block();
+
+
+            System.out.println(bookingEntity.get().getStatus());
+            return toResponse(bookingEntity.get());
+        } catch (WebClientException e){
+            return toResponse(bookingEntity.get());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -126,6 +236,21 @@ public class BookingServiceImpl implements BookingService {
     public long countTodayBookings(LocalDate date) {
         return bookingRepo.countByDate(date);
     }
+
+    // for patient portal
+    @Override
+    public List<BookingResponse> getBookingsByPatient(String patientId) {
+        try {
+            List<BookingEntity> bookings = bookingRepo.findAllByPatientId(patientId);
+
+            return bookings.stream().map(this::toResponse).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
 
     private BookingResponse toResponse(BookingEntity entity) {
         return BookingResponse.builder()

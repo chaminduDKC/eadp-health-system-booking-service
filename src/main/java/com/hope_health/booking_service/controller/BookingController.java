@@ -3,9 +3,11 @@ package com.hope_health.booking_service.controller;
 import com.hope_health.booking_service.entity.BookingEntity;
 import com.hope_health.booking_service.repo.BookingRepo;
 import com.hope_health.booking_service.request.BookingRequest;
+import com.hope_health.booking_service.service.AvailabilityService;
 import com.hope_health.booking_service.service.BookingService;
 import com.hope_health.booking_service.util.StandardResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("api/bookings")
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class BookingController {
 
     private final BookingService bookingService;
     private final BookingRepo bookingRepo;
+    private final AvailabilityService availabilityService;
 
     @PostMapping("/create-booking")
     @PreAuthorize("hasRole('patient') or hasRole('admin')")
@@ -45,6 +49,19 @@ public class BookingController {
                 .code(200)
                 .message("Bookings retrieved successfully")
                 .data(bookingService.getBookingsByPatientId(patientId))
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    // for patient portal to get patient's own bookings
+
+    @PreAuthorize("hasRole('patient') or hasRole('admin') or hasRole('doctor')")
+    @GetMapping("/find-bookings-by-patient/{patientId}")
+    public ResponseEntity<StandardResponse> getBookingsByPatient(@PathVariable String patientId) {
+        StandardResponse response = StandardResponse.builder()
+                .code(200)
+                .message("Bookings retrieved successfully")
+                .data(bookingService.getBookingsByPatient(patientId))
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -102,7 +119,7 @@ public class BookingController {
     }
 
 
-    @DeleteMapping("delete-by-booking-id/{bookingId}")
+    @DeleteMapping("/delete-by-booking-id/{bookingId}")
     public ResponseEntity<StandardResponse> deleteBookingById(@PathVariable String bookingId) {
         return new ResponseEntity<>(
                 StandardResponse.builder()
@@ -114,7 +131,7 @@ public class BookingController {
         );
     }
 
-    @DeleteMapping("delete-booking-by-doctor/{doctorId}")
+    @DeleteMapping("/delete-booking-by-doctor/{doctorId}")
     public ResponseEntity<StandardResponse> deleteBookingByDoctorId(@PathVariable String doctorId) {
         System.out.println("Deleting bookings for doctor id: " + doctorId);
         Set<BookingEntity> bookings = bookingRepo.findAllByDoctorId(doctorId);
@@ -139,18 +156,18 @@ public class BookingController {
         );
     }
 
-    @DeleteMapping("delete-booking-by-patient/{patientId}")
+    @DeleteMapping("/delete-booking-by-patient/{patientId}")
     public ResponseEntity<StandardResponse> deleteBookingByPatientId(@PathVariable String patientId) {
         List<BookingEntity> bookings = bookingRepo.findAllByPatientId(patientId);
         System.out.println("Found patients "+ bookings.toArray().length);
         if (bookings.isEmpty()) {
             return new ResponseEntity<>(
                     StandardResponse.builder()
-                            .code(404)
+                            .code(200)
                             .message("No bookings found for this patient")
                             .data(null)
                             .build(),
-                    HttpStatus.NOT_FOUND
+                    HttpStatus.OK
             );
         }
         bookings.forEach(booking -> bookingRepo.deleteById(booking.getBookingId()));
@@ -164,15 +181,31 @@ public class BookingController {
         );
     }
 
-    @PutMapping("update-booking-status/{bookingId}")
+    @PutMapping("/update-booking-status/{bookingId}")
     @PreAuthorize("hasRole('admin') or hasRole('doctor')")
     public ResponseEntity<StandardResponse> updateBookingStatus(@PathVariable String bookingId, @RequestParam String status) {
+        System.out.println("Updating booking status for bookingId: " + bookingId + " to status: " + status);
         System.out.println(status);
         return new ResponseEntity<>(
                 StandardResponse.builder()
                         .code(200)
                         .message("Booking status updated successfully")
                         .data(bookingService.updateBookingStatus(bookingId, status))
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+
+    @PutMapping("/update-payment-status/{bookingId}")
+    @PreAuthorize("hasRole('admin') or hasRole('doctor')")
+    public ResponseEntity<StandardResponse> updateBookingPaymentStatus(@PathVariable String bookingId, @RequestParam String paymentStatus) {
+        System.out.println("Updating booking status for bookingId: " + bookingId + " to status: " + paymentStatus);
+        System.out.println(paymentStatus);
+        return new ResponseEntity<>(
+                StandardResponse.builder()
+                        .code(200)
+                        .message("Booking status updated successfully")
+                        .data(bookingService.updateBookingPaymentStatus(bookingId, paymentStatus))
                         .build(),
                 HttpStatus.OK
         );
@@ -189,5 +222,18 @@ public class BookingController {
                 HttpStatus.OK
         );
     }
+
+    @GetMapping("/get-available-dates-by-doctor/{doctorId}")
+    public ResponseEntity<StandardResponse> getAvailableDatesByDoctor(@PathVariable String doctorId){
+        return new ResponseEntity<>(
+                StandardResponse.builder()
+                        .code(200)
+                        .message("availabe dates for doctor")
+                        .data(availabilityService.availableDatesForDoctor(doctorId))
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+
 
 }

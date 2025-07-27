@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,6 +62,17 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         return availabilities.stream().map(DoctorAvailability::getDate).toList();
     }
 
+    @Override
+    public List<LocalDate> availableDatesForDoctor(String doctorId) {
+        try {
+            List<LocalDate> availableDates = new ArrayList<>();
+            availabilityRepo.findByDoctorId(doctorId).stream().map(DoctorAvailability::getDate).forEach(availableDates::add);
+            return availableDates;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
     private DoctorAvailability toEntity(DoctorAvailabilityRequest request){
         return DoctorAvailability.builder()

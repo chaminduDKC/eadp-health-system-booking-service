@@ -26,4 +26,8 @@ public interface BookingService {
     List<LocalTime> getAvailableSlots(String doctorId, LocalDate date);
 
     long countTodayBookings(LocalDate date);
+
+    List<BookingResponse> getBookingsByPatient(String patientId);
+
+    BookingResponse updateBookingPaymentStatus(String bookingId, String status);
 }
