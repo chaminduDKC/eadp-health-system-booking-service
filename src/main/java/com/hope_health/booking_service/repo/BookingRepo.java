@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,13 +26,13 @@ public interface BookingRepo extends JpaRepository<BookingEntity, String> {
 
     Optional<BookingEntity> findByPatientId(String patientId);
 
-    Optional<BookingEntity> findByDoctorId(String doctorId);
+    Optional<List<BookingEntity>> findByDoctorId(String doctorId);
 
     boolean existsByDoctorIdAndDateAndTime(String doctorId, LocalDate date, LocalTime time);
 
     List<BookingEntity> findByDoctorIdAndDate(String doctorId, LocalDate date);
 
-    Set<BookingEntity> findAllByDoctorId(String doctorId);
+    List<BookingEntity> findAllByDoctorId(String doctorId);
 
     long countByDate(LocalDate date);
 
@@ -40,4 +41,10 @@ public interface BookingRepo extends JpaRepository<BookingEntity, String> {
 
     @Query(value = "SELECT COUNT(booking_id) FROM bookings WHERE doctor_name LIKE %?1% OR patient_name LIKE %?1%", nativeQuery = true)
     long countAll(String search);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(booking_id) FROM bookings WHERE doctor_id LIKE %?1%")
+    long countByDoctorId(String doctorId);
+
+    @Query(value = "SELECT * FROM bookings WHERE doctor_id LIKE %?1%", nativeQuery = true)
+    Page<BookingEntity> findAllPaginatedByDoctorId(String doctorId, Pageable pageable);
 }

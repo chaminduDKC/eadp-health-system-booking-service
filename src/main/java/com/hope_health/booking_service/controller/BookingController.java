@@ -68,11 +68,11 @@ public class BookingController {
 
     @PreAuthorize("hasRole('admin') or hasRole('doctor')")
     @GetMapping("/find-by-doctor/{doctorId}")
-    public ResponseEntity<StandardResponse> getBookingsByDoctorId(@PathVariable String doctorId) {
+    public ResponseEntity<StandardResponse> getBookingsByDoctorId(@PathVariable String doctorId, @RequestParam int page, @RequestParam int size) {
         StandardResponse response = StandardResponse.builder()
                 .code(200)
                 .message("Bookings retrieved successfully")
-                .data(bookingService.getBookingsByDoctorId(doctorId))
+                .data(bookingService.getBookingsByDoctorId(doctorId, page, size))
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -134,7 +134,7 @@ public class BookingController {
     @DeleteMapping("/delete-booking-by-doctor/{doctorId}")
     public ResponseEntity<StandardResponse> deleteBookingByDoctorId(@PathVariable String doctorId) {
         System.out.println("Deleting bookings for doctor id: " + doctorId);
-        Set<BookingEntity> bookings = bookingRepo.findAllByDoctorId(doctorId);
+        List<BookingEntity> bookings = bookingRepo.findAllByDoctorId(doctorId);
         if (bookings.isEmpty()) {
             return new ResponseEntity<>(
                     StandardResponse.builder()

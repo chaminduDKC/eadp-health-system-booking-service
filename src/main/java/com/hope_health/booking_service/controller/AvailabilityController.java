@@ -47,6 +47,18 @@ public class AvailabilityController {
         );
     }
 
+    @GetMapping("/get-booked-time-slots/{doctorId}")
+    public ResponseEntity<StandardResponse> getBookedTimeSlots(@RequestParam LocalDate date, @PathVariable String doctorId){
+        return new ResponseEntity<>(
+                StandardResponse.builder()
+                        .code(200)
+                        .message("Already booked times retrieved succeeded")
+                        .data(availabilityService.getBookedTimeSlots(date, doctorId))
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+
     @GetMapping("/find-selected-dates-by-doctor-id/{doctorId}")
     public ResponseEntity<StandardResponse> getSelectedDates(@PathVariable String doctorId){
         System.out.println("selected dates retrieved");

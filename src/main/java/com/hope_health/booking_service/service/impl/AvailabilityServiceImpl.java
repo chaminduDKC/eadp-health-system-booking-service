@@ -66,11 +66,26 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     public List<LocalDate> availableDatesForDoctor(String doctorId) {
         try {
             List<LocalDate> availableDates = new ArrayList<>();
-            availabilityRepo.findByDoctorId(doctorId).stream().map(DoctorAvailability::getDate).forEach(availableDates::add);
+            availabilityRepo.findByDoctorId(doctorId).stream()
+                    .filter(date-> date.getDate().isAfter(LocalDate.now().minusDays(1)))
+                    .map(DoctorAvailability::getDate).forEach(availableDates::add);
             return availableDates;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+    }
+
+    @Override
+    public List<LocalTime> getBookedTimeSlots(LocalDate date, String doctorId) {
+        if(date == null || doctorId == null){
+            throw new NullPointerException("Date or Doctor ID cannot be null");
+        }
+        List<BookingEntity> availabilities = bookingRepo.findByDoctorIdAndDate(doctorId, date);
+        return availabilities.stream()
+                .map(BookingEntity::getTime)
+                .collect(Collectors.toList());
+
 
     }
 

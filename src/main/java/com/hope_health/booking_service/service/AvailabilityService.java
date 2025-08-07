@@ -17,4 +17,6 @@ public interface AvailabilityService {
     List<LocalDate> getSelectedDates(String doctorId);
 
     List<LocalDate> availableDatesForDoctor(String doctorId);
+
+    List<LocalTime> getBookedTimeSlots(LocalDate date, String doctorId);
 }

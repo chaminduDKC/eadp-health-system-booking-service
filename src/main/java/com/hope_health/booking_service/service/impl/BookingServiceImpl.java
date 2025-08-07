@@ -81,15 +81,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingsResponsePaginated getBookingsByDoctorId(String doctorId) {
-        Optional<BookingEntity> isExists = bookingRepo.findByDoctorId(doctorId);
+    public BookingsResponsePaginated getBookingsByDoctorId(String doctorId, int page, int size) {
+        Optional<List<BookingEntity>> isExists = bookingRepo.findByDoctorId(doctorId);
 
         if(isExists.isEmpty()){
             throw new RuntimeException("No bookings for this doctor id "+ doctorId);
         }
         return BookingsResponsePaginated.builder()
-                .bookingCount(bookingRepo.countByPatientId(doctorId))
-                .bookingList(bookingRepo.findAllByPatientId(doctorId).stream().map(this::toResponse).toList())
+                .bookingCount(bookingRepo.countByDoctorId(doctorId))
+                .bookingList(bookingRepo.findAllPaginatedByDoctorId(doctorId, PageRequest.of(page, size)).stream().map(this::toResponse).toList())
                 .build();
     }
 

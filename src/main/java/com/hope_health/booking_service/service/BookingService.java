@@ -15,7 +15,7 @@ public interface BookingService {
 
     BookingsResponsePaginated getBookingsByPatientId(String patientId);
 
-    BookingsResponsePaginated getBookingsByDoctorId(String doctorId);
+    BookingsResponsePaginated getBookingsByDoctorId(String doctorId, int page, int size);
 
     BookingsResponsePaginated getAllBookings(String searchText, int page, int size);
 
