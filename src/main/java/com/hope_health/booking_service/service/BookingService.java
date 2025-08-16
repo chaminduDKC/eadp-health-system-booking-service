@@ -30,4 +30,6 @@ public interface BookingService {
     List<BookingResponse> getBookingsByPatient(String patientId);
 
     BookingResponse updateBookingPaymentStatus(String bookingId, String status);
+
+    List<Integer> getBookingsByDate();
 }

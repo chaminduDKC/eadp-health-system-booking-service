@@ -235,5 +235,17 @@ public class BookingController {
         );
     }
 
+    @GetMapping("/get-bookings-by-date")
+    public ResponseEntity<StandardResponse> getBookingsByDate(){
+        return new ResponseEntity<>(
+                StandardResponse.builder()
+                        .code(200)
+                        .message("bookings by date for analytics")
+                        .data(bookingService.getBookingsByDate())
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+
 
 }

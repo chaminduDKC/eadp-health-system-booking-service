@@ -17,10 +17,8 @@ import org.springframework.web.reactive.function.client.WebClientException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.time.YearMonth;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -212,6 +210,22 @@ public class BookingServiceImpl implements BookingService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<Integer> getBookingsByDate() {
+        List<Integer> statList = new ArrayList<>();
+        int numberOfDays = 10;
+        for (int i = 0; i < numberOfDays ; i++) {
+            LocalDate currentDate = LocalDate.now().minusDays(i);
+            int countForDay = bookingRepo.findByDate(currentDate);
+            System.out.println(currentDate);
+            System.out.println(countForDay);
+            statList.add(countForDay);
+        }
+        Collections.reverse(statList);
+        return statList;
+
     }
 
     @Override

@@ -47,4 +47,7 @@ public interface BookingRepo extends JpaRepository<BookingEntity, String> {
 
     @Query(value = "SELECT * FROM bookings WHERE doctor_id LIKE %?1%", nativeQuery = true)
     Page<BookingEntity> findAllPaginatedByDoctorId(String doctorId, Pageable pageable);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(booking_id) FROM bookings WHERE date LIKE %?1%")
+    int findByDate(LocalDate currentDate);
 }
